@@ -1,0 +1,38 @@
+registry:
+  image: tcurdt/registry
+  restart: always
+  net: host
+  ports:
+    - 0.0.0.0:5000:5000
+  volumes:
+    - /srv/registry/storage:/storage
+    - /srv/registry/config:/config
+
+web:
+  image: tcurdt/nginx
+  restart: always
+  net: host
+  ports:
+    - 0.0.0.0:80:80
+    - 0.0.0.0:443:443
+  volumes:
+    - /srv/nginx:/srv/nginx:rw
+    - /etc/nginx/sites-available:/etc/nginx/sites-available:ro
+    - /etc/nginx/sites-enabled:/etc/nginx/sites-enabled:ro
+    - /etc/nginx/upstream.d:/etc/nginx/upstream.d:ro
+
+upstream:
+  image: tcurdt/upstream
+  restart: always
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - /etc/nginx/upstream.d/generated:/srv/upstream/generated:rw
+
+znc:
+  restart: always
+  image: tcurdt/znc
+  net: host
+  ports:
+    - 0.0.0.0:6667:6667
+  volumes:
+    - /srv/znc:/srv/znc:rw

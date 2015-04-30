@@ -1,8 +1,8 @@
 DOCKER=docker@`boot2docker ip`
 
-CA=vafer.org
+CA=docker-registry
 DOMAIN=vafer.org
-CLIENT=torsten
+CLIENT=laptop
 
 # copy
 scp -i ~/.ssh/id_boot2docker \

@@ -5,6 +5,7 @@
     - /srv/registry
     - /srv/registry/config
     - /srv/registry/config/tls
+  tags: certs
 
 - file: path={{item}} owner=root group=daemon mode=770 state=directory
   with_items:
@@ -17,12 +18,45 @@
     group: daemon
     mode: 0440
   with_items:
-    - /Users/tcurdt/Projects/ca/vafer.org/ca/ca.crt
-    - /Users/tcurdt/Projects/ca/vafer.org/servers/vafer.org/server.crt
-    - /Users/tcurdt/Projects/ca/vafer.org/servers/vafer.org/server.key
+    - /Users/tcurdt/Projects/ca/{{ca}}/ca/ca.crt
+    - /Users/tcurdt/Projects/ca/{{ca}}/servers/{{registry|host}}/server.crt
+    - /Users/tcurdt/Projects/ca/{{ca}}/servers/{{registry|host}}/server.key
   tags: certs
 
 - name: docker registry config
   template:
     src: registry.cfg
     dest: /srv/registry/config/config.yml
+
+- name: docker access to registry
+  file:
+    path: /etc/docker/certs.d/{{registry}}
+    owner: root
+    group: root
+    mode: 0550
+    state: directory
+  tags: certs
+
+- copy:
+    src: /Users/tcurdt/Projects/ca/{{ca}}/ca/ca.crt
+    dest: /etc/docker/certs.d/{{registry}}/{{registry|host}}.crt
+    owner: root
+    group: root
+    mode: 0440
+  tags: certs
+
+- copy:
+    src: /Users/tcurdt/Projects/ca/{{ca}}/clients/{{client}}/client.crt
+    dest: /etc/docker/certs.d/{{registry}}/client.cert
+    owner: root
+    group: root
+    mode: 0440
+  tags: certs
+
+- copy:
+    src: /Users/tcurdt/Projects/ca/{{ca}}/clients/{{client}}/client.key
+    dest: /etc/docker/certs.d/{{registry}}/client.key
+    owner: root
+    group: root
+    mode: 0400
+  tags: certs

@@ -8,6 +8,6 @@
   roles:
     - { role: common }
     - { role: autoupgrade }
-    - { role: docker }
+    - { role: docker, ca: docker-registry, client: vserver, registry: "vafer.org:5000", compose: default }
     - { role: webserver }
     - { role: bouncer }

@@ -100,6 +100,7 @@ docker run --name znc \
   -p 0.0.0.0:6667:6667 \
   -v /srv/znc:/srv/znc:rw \
   --rm -it tcurdt/znc
+  znc -d /srv/znc --makepem
 
 docker run --name nginx \
   --entrypoint /bin/sh \
@@ -107,8 +108,12 @@ docker run --name nginx \
   -p 0.0.0.0:80:80 \
   -p 0.0.0.0:443:443 \
   -v /srv/nginx:/srv/nginx \
-  -v /var/run/app:/var/run/app \
   -v /etc/nginx/sites-available:/etc/nginx/sites-available \
   -v /etc/nginx/sites-enabled:/etc/nginx/sites-enabled \
   -v /etc/nginx/upstream.d:/etc/nginx/upstream.d \
   --rm -it tcurdt/nginx
+
+docker run --name lifeisforsurfing \
+  -p 8000:8000 \
+  --label org.vafer.upstream=8000 \
+  --rm -it vafer.org:5000/lifeisforsurfing

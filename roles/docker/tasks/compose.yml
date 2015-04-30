@@ -17,3 +17,20 @@
     curl -L https://raw.githubusercontent.com/docker/compose/{{ docker_compose_version }}/contrib/completion/bash/docker-compose > /etc/bash_completion.d/docker-compose
   args:
     creates: /etc/bash_completion.d/docker-compose
+
+- name: docker compose configs
+  file:
+    path: /etc/docker/compose
+    group: root
+    owner: root
+    mode: 0755
+    state: directory
+
+- name: docker compose config
+  template:
+    src: docker/{{compose}}.yml
+    dest: /etc/docker/compose/{{compose}}.yml
+    group: root
+    owner: root
+    mode: 0644
+  when: compose is defined
