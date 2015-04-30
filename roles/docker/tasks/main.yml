@@ -1,0 +1,60 @@
+---
+
+- name: add apt key
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: 36A1D7869245C8950F966E92D8576A8BA88D21E9
+
+- name: add apt repo
+  apt_repository:
+    repo: 'deb https://get.docker.com/ubuntu docker main'
+
+- name: docker config
+  template:
+    src: docker.cfg
+    dest: /etc/default/docker
+  notify: reload docker
+
+- name: install docker
+  apt: 
+    name: lxc-docker
+    state: "{{state}}"
+    update_cache: yes
+
+- name: adding users to docker group
+  user: name={{item.user}} uid={{item.uid}} groups="docker" append=yes state=present
+  when: item.sudoer
+  with_items: users
+  tags: user
+
+- name: install pip
+  apt:
+    pkg: "{{item}}"
+    state: "{{state}}"
+    update_cache: yes
+    cache_valid_time: 3600
+  with_items:
+    - python-dev
+    - python-pip
+
+# https://bugs.launchpad.net/ubuntu/+source/python-pip/+bug/1306991
+- name: fixing pip
+  file:
+    path: /usr/local/lib/python2.7/dist-packages/requests
+    state: absent
+
+- name: install docker-py
+  pip:
+    name: docker-py
+    version: 1.1.0
+
+- name: disable updatedb for docker
+  lineinfile:
+    dest: /etc/updatedb.conf
+    regexp: '^PRUNEPATHS="/tmp (.*)'
+    line: 'PRUNEPATHS="/var/lib/docker /tmp \1'
+    backrefs: yes
+    state: present
+
+- include: registry.yml
+- include: compose.yml

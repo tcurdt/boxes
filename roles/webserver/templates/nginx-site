@@ -1,0 +1,3 @@
+location / {
+  root /srv/nginx/{{item.item.domain}}/doc;
+}

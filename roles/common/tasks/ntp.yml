@@ -1,0 +1,40 @@
+---
+- name: restrict ntp
+  lineinfile:
+    dest: /etc/ntp.conf
+    regexp: 'restrict lo'
+    line: 'restrict lo'
+    state: present
+  notify: restart ntp
+
+- name: restrict ntp
+  lineinfile:
+    dest: /etc/ntp.conf
+    regexp: 'restrict 127.0.0.1'
+    line: 'restrict 127.0.0.1'
+    state: present
+  notify: restart ntp
+
+- name: restrict ntp
+  lineinfile:
+    dest: /etc/ntp.conf
+    regexp: 'restrict ::1'
+    line: 'restrict ::1'
+    state: present
+  notify: restart ntp
+
+- name: restrict ntp
+  lineinfile:
+    dest: /etc/ntp.conf
+    regexp: 'interface ignore wildcard'
+    line: 'interface ignore wildcard'
+    state: present
+  notify: restart ntp
+
+- name: restrict ntp
+  lineinfile:
+    dest: /etc/ntp.conf
+    regexp: 'interface listen lo'
+    line: 'interface listen lo'
+    state: present
+  notify: restart ntp

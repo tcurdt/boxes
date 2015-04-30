@@ -1,0 +1,49 @@
+---
+- name: enable periodic update checks
+  file:
+    path: /etc/apt/apt.conf.d/10periodic
+    state: touch
+    owner: root
+    group: root
+    mode: 0644
+  changed_when: false
+
+- name: install required packages
+  apt: pkg={{item}} state={{state}}
+  with_items:
+    - unattended-upgrades
+
+- name: enable unattended upgrades
+  lineinfile:
+    dest: /etc/apt/apt.conf.d/10periodic
+    regexp: 'APT::Periodic::Unattended-Upgrade'
+    line: 'APT::Periodic::Unattended-Upgrade "1";'
+    state: present
+
+- name: enable package cache update
+  lineinfile:
+    dest: /etc/apt/apt.conf.d/10periodic
+    regexp: 'APT::Periodic::Update-Package-Lists'
+    line: 'APT::Periodic::Update-Package-Lists "1";'
+    state: present
+
+- name: enable package cleaning
+  lineinfile:
+    dest: /etc/apt/apt.conf.d/10periodic
+    regexp: 'APT::Periodic::AutocleanInterval'
+    line: 'APT::Periodic::AutocleanInterval "7";'
+    state: present
+
+- name: enable package download
+  lineinfile:
+    dest: /etc/apt/apt.conf.d/10periodic
+    regexp: 'APT::Periodic::Download-Upgradeable-Packages'
+    line: 'APT::Periodic::Download-Upgradeable-Packages "1";'
+    state: present
+
+- name: enable upgrade notifications
+  lineinfile:
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    regexp: 'Unattended-Upgrade::Mail'
+    line: 'Unattended-Upgrade::Mail "root";'
+    state: present

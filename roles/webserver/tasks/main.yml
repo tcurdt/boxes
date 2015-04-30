@@ -1,0 +1,87 @@
+---
+- file: path={{item}} owner=root group=root mode=750 state=directory
+  with_items:
+    - /etc/nginx/sites-available
+    - /etc/nginx/sites-enabled
+    - /etc/nginx/upstream.d
+
+- file: path=/srv/nginx/{{item.domain}} owner=root group=root mode=755 state=directory
+  with_items: sites
+  tags: site
+- file: path=/srv/nginx/{{item.domain}}/cfg owner=root group=adm mode=775 state=directory
+  with_items: sites
+  tags: site
+- file: path=/srv/nginx/{{item.domain}}/doc owner=root group=adm mode=775 state=directory
+  with_items: sites
+  tags: site
+- file: path=/srv/nginx/{{item.domain}}/src owner=root group=adm mode=775 state=directory
+  with_items: sites
+  tags: site
+- file: path=/srv/nginx/{{item.domain}}/ssl owner=root group=adm mode=775 state=directory
+  with_items: sites
+  tags: site
+- file: path=/srv/nginx/{{item.domain}}/log owner=root group=adm mode=775 state=directory
+  with_items: sites
+  tags: site
+
+- name: checking for server configurations
+  stat:
+    path: /srv/nginx/{{item.domain}}/cfg/server
+  with_items: sites
+  register: cfg_server
+  tags: site
+
+- name: creating default server configurations
+  template:
+    src: nginx-server
+    dest: /etc/nginx/sites-available/{{item.item.domain}}
+    owner: root
+    group: root
+    mode: 644
+  when: not item.stat.exists
+  with_items: cfg_server.results
+  tags: site
+
+- name: linking server configurations
+  file:
+    src: /srv/nginx/{{item.item.domain}}/cfg/server
+    dest: /etc/nginx/sites-available/{{item.item.domain}}
+    state: link
+    force: yes
+  when: item.stat.exists
+  with_items: cfg_server.results
+  tags: site
+
+- name: checking for site configurations
+  stat:
+    path: /srv/nginx/{{item.domain}}/cfg/site
+  with_items: sites
+  register: cfg_site
+  tags: site
+
+- name: creating default site configurations
+  template:
+    src: nginx-site
+    dest: /srv/nginx/{{item.item.domain}}/cfg/site
+    owner: root
+    group: root
+    mode: 644
+  when: not item.stat.exists
+  with_items: cfg_site.results
+  tags: site
+
+- name: linking available sites
+  file:
+    src: /etc/nginx/sites-available/{{item.domain}}
+    dest: /etc/nginx/sites-enabled/{{item.domain}}
+    state: link
+  with_items: sites
+  tags: site
+
+- copy:
+    dest: /etc/nginx/upstream.d/generated
+    content: ""
+    force: no
+    owner: daemon
+    group: daemon
+    mode: 750

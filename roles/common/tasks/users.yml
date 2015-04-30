@@ -1,0 +1,45 @@
+---
+- name: creating users
+  user:
+    name: "{{item.user}}"
+    comment: "{{item.name}}"
+    uid: "{{item.uid}}"
+    groups: "{{item.groups}}"
+    append: yes
+    shell: /bin/bash
+    state: present
+  with_items: users
+  tags: user
+
+- name: authorize user
+  authorized_key:
+    user: "{{item.user}}"
+    key: "{{item.key}}"
+  with_items: users
+  tags: user
+
+- name: add sudoers
+  copy:
+    dest: /etc/sudoers.d/{{ item.user }}
+    content: |
+             {{ item.user }}  ALL=(ALL) NOPASSWD:ALL
+             #
+  when: item.sudoer
+  with_items: users
+  tags: user
+
+- name: sudo ssh forwarding
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: "env_keep"
+    line: 'Defaults env_keep += "SSH_AUTH_SOCK",timestamp_timeout=0'
+    state: present
+
+- name: configure sshd
+  template:
+    src: sshd
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart ssh

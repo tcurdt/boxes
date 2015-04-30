@@ -1,0 +1,22 @@
+---
+- file: path={{item}} owner=daemon group=root mode=750 state=directory
+  with_items:
+    - /srv/znc
+    - /srv/znc/configs
+  tags: user
+
+# only the initial config because of znc's horrifying way of dealing with configs
+- stat:
+    path: /srv/znc/configs/znc.conf
+  register: config
+  tags: user
+
+- name: configuration
+  template:
+    src: znc.conf
+    dest: /srv/znc/configs/znc.conf
+    owner: daemon
+    group: root
+    mode: "640"
+  when: not config.stat.exists
+  tags: user

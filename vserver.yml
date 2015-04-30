@@ -1,0 +1,13 @@
+---
+- hosts: all
+  sudo: true
+  gather_facts: false
+  vars:
+    # state: present
+    state: latest
+  roles:
+    - { role: common }
+    - { role: autoupgrade }
+    - { role: docker }
+    - { role: webserver }
+    - { role: bouncer }

@@ -1,0 +1,49 @@
+server {
+  listen 0.0.0.0:80;
+  server_name {{item.item.domain}};
+
+  error_log /srv/nginx/{{item.item.domain}}/log/error.log;
+  access_log /srv/nginx/{{item.item.domain}}/log/access.log;
+
+  include /srv/nginx/{{item.item.domain}}/cfg/site;
+
+{% if item.item.ssl is defined %}
+  return 301 https://$host$request_uri;
+{% endif %}
+}
+
+{% if item.item.ssl is defined %}
+server {
+  listen 0.0.0.0:443 ssl spdy;
+  server_name {{item.item.domain}};
+
+  error_log /srv/nginx/{{item.item.domain}}/log/error.log;
+  access_log /srv/nginx/{{item.item.domain}}/log/access.log;
+
+  ssl_certificate_key /srv/nginx/{{item.item.domain}}/ssl/key;
+  ssl_certificate /srv/nginx/{{item.item.domain}}/ssl/crt;
+  # ssl_trusted_certificate /srv/nginx/{{item.item.domain}}/ssl/crt;
+  include /etc/nginx/ssl.conf;
+
+  include /srv/nginx/{{item.item.domain}}/cfg/site;
+}
+{% endif %}
+
+server {
+  listen 0.0.0.0:80;
+  server_name s.{{item.item.domain}};
+
+  error_log /dev/null;
+  access_log /dev/null;
+
+  location / {
+    root /srv/nginx/{{item.item.domain}}/doc/assets;
+    expires 14d;
+    add_header Cache-Control public;
+  }
+}
+
+server {
+  server_name www.{{item.item.domain}};
+  rewrite ^(.*) http://{{item.item.domain}}$1 permanent;
+}

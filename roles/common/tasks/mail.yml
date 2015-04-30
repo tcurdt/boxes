@@ -1,0 +1,14 @@
+---
+- name: install mail packages
+  apt: pkg={{item}} state={{state}}
+  with_items:
+    - heirloom-mailx
+    - msmtp-mta
+
+- name: configure mail packages
+  template:
+    src: msmtprc
+    dest: /etc/msmtprc
+    owner: root
+    group: root
+    mode: 0600

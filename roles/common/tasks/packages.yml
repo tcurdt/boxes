@@ -1,0 +1,41 @@
+---
+- name: update package cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: upgrade system
+  apt:
+    upgrade: safe
+
+- name: install packages
+  apt: pkg={{item}} state={{state}}
+  with_items:
+    - build-essential
+    - bash-completion
+    - htop
+    - iotop
+    - tree
+    - curl
+    - git
+    - rsync
+    - vim
+    - psmisc
+    - procps
+    - mosh
+    - openssl
+    - ntp
+    - fail2ban
+    - socat
+
+- name: remove unneeded packages
+  apt: pkg={{item}} state=absent
+  with_items:
+    - puppet
+    - chef
+
+# - name: remove unneeded services
+#   service:
+#     name: rpcbind
+#     state: stopped
+#     enabled: no

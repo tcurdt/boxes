@@ -1,0 +1,19 @@
+---
+- name: installing docker compose
+  shell: >
+    curl -L https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+  args:
+    creates: /usr/local/bin/docker-compose
+
+- name: setting permissions
+  file:
+    path: /usr/local/bin/docker-compose
+    group: root
+    owner: root
+    mode: 0755
+
+- name: installing docker compose bash completion
+  shell: >
+    curl -L https://raw.githubusercontent.com/docker/compose/{{ docker_compose_version }}/contrib/completion/bash/docker-compose > /etc/bash_completion.d/docker-compose
+  args:
+    creates: /etc/bash_completion.d/docker-compose

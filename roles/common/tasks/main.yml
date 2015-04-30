@@ -1,0 +1,7 @@
+---
+- include: localtime.yml
+- include: hosts.yml
+- include: packages.yml
+- include: ntp.yml
+- include: mail.yml
+- include: users.yml

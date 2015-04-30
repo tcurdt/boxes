@@ -1,0 +1,18 @@
+---
+- name: restart ssh
+  sudo: true
+  command: service ssh restart
+  # https://bugs.launchpad.net/ubuntu/+source/openssh/+bug/1390012
+  # service: name=ssh state=restarted enabled=yes
+
+- name: update locale
+  sudo: true
+  command: /usr/sbin/update-locale LANG={{locale}} LC_ALL={{locale}}
+
+- name: update timezone
+  sudo: true
+  command: /usr/sbin/dpkg-reconfigure --frontend noninteractive tzdata
+
+- name: restart ntp
+  sudo: true
+  service: name=ntp state=restarted enabled=yes

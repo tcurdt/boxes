@@ -1,0 +1,15 @@
+---
+- name: set locale
+  locale_gen: name={{locale}} state=present
+  notify: update locale
+
+- name: set localtime
+  copy:
+    src: /usr/share/zoneinfo/{{timezone}}
+    dest: /etc/localtime
+
+- name: set timezone
+  template:
+    src: timezone
+    dest: /etc/timezone
+  notify: update timezone
